@@ -22,14 +22,27 @@ document.addEventListener("click", function (e) {
     handleCommentClick(e.target.dataset.comment);
   } else if (e.target.dataset.delete) {
     handleDeleteClick(e.target.dataset.delete);
+  } else if (e.target.dataset.deletereply) {
+    handleDeleteReplyClick(
+      e.target.dataset.deletereply,
+      e.target.dataset.deletereplyindex
+    );
   }
 });
 
+function handleDeleteReplyClick(tweetId, replyIndex) {
+  const targetTweetObj = tweetsData.filter(function (tweet) {
+    return tweet.uuid === tweetId;
+  })[0];
+  targetTweetObj.replies.splice(replyIndex, 1);
+  render();
+  updateLocalStorage();
+  handleReplyClick(tweetId);
+}
+
 function handleDeleteClick(tweetId) {
-  console.log("Handling");
   tweetsData.forEach(function (tweet, index) {
     if (tweet.uuid === tweetId) {
-      console.log("Found at " + index);
       tweetsData.splice(index, 1);
     }
   });
@@ -42,7 +55,7 @@ function handleCommentClick(tweetId) {
     return tweet.uuid === tweetId;
   })[0];
   targetTweetObj.replies.push({
-    handle: `@Scrimba ✅`,
+    handle: `@Scrimba`,
     profilePic: `images/scrimbalogo.png`,
     tweetText: document.getElementById("comment-input-" + tweetId).value,
   });
@@ -130,15 +143,26 @@ function getFeedHtml() {
     let repliesHtml = "";
 
     if (tweet.replies.length > 0) {
+      let deleteReplyIconClass = "";
       tweet.replies.forEach(function (reply) {
+        if (reply.handle === "@Scrimba") {
+          deleteReplyIconClass = "deletable";
+        }
         repliesHtml += `
 <div class="tweet-reply">
     <div class="tweet-inner">
         <img src="${reply.profilePic}" class="profile-pic">
         <div>
             <p class="handle">${reply.handle}</p>
-            <p class="tweet-text">${reply.tweetText}</p>
+            <p class="tweet-text">${reply.tweetText}</p>            
         </div>
+        <span class="tweet-detail hidden ${deleteReplyIconClass}">
+                    <i class="fa-solid fa-trash"
+                    data-deletereply="${
+                      tweet.uuid
+                    }" data-deletereplyindex="${tweet.replies.indexOf(reply)}"
+                    ></i>
+                </span>
     </div>
     
 </div>
@@ -182,7 +206,6 @@ function getFeedHtml() {
                     <i class="fa-solid fa-trash"
                     data-delete="${tweet.uuid}"
                     ></i>
-                    ${tweet.retweets}
                 </span>
             </div>   
         </div>            
