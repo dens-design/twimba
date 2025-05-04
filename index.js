@@ -123,31 +123,10 @@ function getFeedHtml() {
   let feedHtml = ``;
 
   tweetsData.forEach(function (tweet) {
-    let likeIconClass = "";
-
-    if (tweet.isLiked) {
-      likeIconClass = "liked";
-    }
-
-    let retweetIconClass = "";
-
-    if (tweet.isRetweeted) {
-      retweetIconClass = "retweeted";
-    }
-
-    let deleteIconClass = "";
-    if (tweet.handle === "@Scrimba") {
-      deleteIconClass = "deletable";
-    }
-
     let repliesHtml = "";
 
     if (tweet.replies.length > 0) {
-      let deleteReplyIconClass = "";
       tweet.replies.forEach(function (reply) {
-        if (reply.handle === "@Scrimba") {
-          deleteReplyIconClass = "deletable";
-        }
         repliesHtml += `
 <div class="tweet-reply">
     <div class="tweet-inner">
@@ -156,7 +135,9 @@ function getFeedHtml() {
             <p class="handle">${reply.handle}</p>
             <p class="tweet-text">${reply.tweetText}</p>            
         </div>
-        <span class="tweet-detail hidden ${deleteReplyIconClass}">
+        <span class="tweet-detail hidden ${
+          reply.handle === "@Scrimba" ? "deletable" : ""
+        }">
                     <i class="fa-solid fa-trash"
                     data-deletereply="${
                       tweet.uuid
@@ -191,18 +172,22 @@ function getFeedHtml() {
                     ${tweet.replies.length}
                 </span>
                 <span class="tweet-detail">
-                    <i class="fa-solid fa-heart ${likeIconClass}"
+                    <i class="fa-solid fa-heart ${tweet.isLiked ? "liked" : ""}"
                     data-like="${tweet.uuid}"
                     ></i>
                     ${tweet.likes}
                 </span>
                 <span class="tweet-detail">
-                    <i class="fa-solid fa-retweet ${retweetIconClass}"
+                    <i class="fa-solid fa-retweet ${
+                      tweet.isRetweeted ? "retweeted" : ""
+                    }"
                     data-retweet="${tweet.uuid}"
                     ></i>
                     ${tweet.retweets}
                 </span>
-                <span class="tweet-detail hidden ${deleteIconClass}">
+                <span class="tweet-detail hidden ${
+                  tweet.handle === "@Scrimba" ? "deletable" : ""
+                }">
                     <i class="fa-solid fa-trash"
                     data-delete="${tweet.uuid}"
                     ></i>
